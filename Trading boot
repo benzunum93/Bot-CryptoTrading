@@ -1,4 +1,4 @@
-##Robot final creado por Carlos Sebastian Zapata
+##Crypto trading boot based in python, made for Carlos Sebastian Zapata
 ##Sent API request to binance to get some data that is used to
 ##analice Cryptocurrencies and send information if it's good to invest in short o long position
 ##For default the Cryto are 9,and can be more o less that nine, that depends on you, its as simple as calling the Funcion "Monesdas()"
