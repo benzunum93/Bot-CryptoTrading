@@ -3,6 +3,7 @@
 ##analice Cryptocurrencies and send information if it's good to invest in short o long position
 ##For default the Cryto are 9,and can be more o less that nine, that depends on you, its as simple as calling the Funcion "Monesdas()"
 ##and pass the name of the Pair cryto, and a number that goes from 0 to etc.
+##****For security you need to made you own "configuracion" file where you will storage you own Api keys to be call, because each user have it's own Api Keys.***
 
 import pandas as pd
 import time #Used for make delay based in real time
@@ -13,7 +14,7 @@ from binance.websocket.websocket_client import BinanceWebsocketClient
 import configuracion #In this file yoeu need to have you Api keys, we call it in to varibles as usuario and contra
 import sqlite3 #If you need to store informatiion in a Data base based in SQLlite
 
-client= Client(configuracion.usuario,configuracion.contra)
+client= Client(configuracion.usuario,configuracion.contra) #You have to call you own Api key and Api secret key
 print("logged in")
 rsi_indice=[0]
 
