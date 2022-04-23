@@ -5,130 +5,61 @@
 ##and pass the name of the Pair cryto, and a number that goes from 0 to etc.
 ##****For security you need to made you own "configuracion" file where you will storage you own Api keys to be call, because each user have it's own Api Keys.***
 
-import pandas as pd
-import time #Used for make delay based in real time
-import ta #Used to call function that help calculate the indicator for decision making
+import Pidedatos
+import estrategia
 import numpy as np
-from binance.client import Client #Library for API to Binance
-from binance.websocket.websocket_client import BinanceWebsocketClient
-import configuracion #In this file yoeu need to have you Api keys, we call it in to varibles as usuario and contra
-import sqlite3 #If you need to store informatiion in a Data base based in SQLlite
+import pandas as pd
+import time
+import sqlite3 #Para utilizar base de datos
+from datetime import datetime
+current_date = datetime.now().date()
+current_date=str(current_date)
+Pidedatos.Time_server()
+#recoleta los datos desde 1 de enero del 2021 hasta hoy de las siguientes monedas
+pide_datos_primera_vez=input('Primera vez pidiendo datos?')
 
-client= Client(configuracion.usuario,configuracion.contra) #You have to call you own Api key and Api secret key
-print("logged in")
-rsi_indice=[0]
+if pide_datos_primera_vez=='si':
+    Pidedatos.Monedas('BTCUSDT', 0)
+    Pidedatos.Monedas('ETHUSDT', 1)
+    Pidedatos.Monedas('MANAUSDT', 2)
+    Pidedatos.Monedas('ROSEUSDT',3)
+    Pidedatos.Monedas('ADAUSDT',4)
+    Pidedatos.Monedas('BNBUSDT',5)
+    Pidedatos.Monedas('DOGEUSDT',6)
+    Pidedatos.Monedas('BAKEUSDT',7)
 
-i=0
-numeros_monedas=7# Total de monedas
-indicador_venta=[0]#Enumera la moneda para ver si analiza la salida de una posicion o entrada
-posicion_activo=[0] #indicador si la posicion esta en long 0 o short 1
-
-while i<numeros_monedas:
-    #Indica con cero q la moneda esta vendida, y 1 si esta comprada
-    indicador_venta.append(0)
-    posicion_activo.append(0)
-    i=i+1
-
-
-mac=[0]
- 
-#Coge el ultimo valor del calculo de cada indicador
-def tratamiento_datos(datos): 
-    
-    longitud=len(datos)
-    datos1=datos[longitud-1]
-    datos1=float(datos1)
-    return datos1 
-#Funcion para obtener los datos de cada Moneda
-def getminutedata(symbol, interval,lookback):
-    
-    datos=client.get_historical_klines(symbol, interval, lookback+'min ago UTC')
-    frame = pd.DataFrame(datos)
-    frame= frame.iloc[:,:6]
-    frame.columns=['Time','Open','High','Low','Close','Volume']
-    precio_cerrada=frame['Close']
-    for i in precio_cerrada:
-        i=float(i)
-
-    
-    frame=frame.set_index('Time')
-    frame.index=pd.to_datetime(frame.index, unit='ms')
-    frame=frame.astype(float)
-    return frame
-
-#Funcion para Calcular los indicadores
-
-def aplicartecnicals(df):    
-    df['%K']=ta.momentum.stoch(df.High, df.Low, df.Close, window=14, smooth_window=3)
-    df['%D']=df['%K'].rolling(3).mean()
-    # Calculo RSI, se necesita 14 datos anteriores para que este haga un calculo
-    df['rsi']=ta.momentum.rsi(df.Close, window=14)#, fillna=True) 
-    #Calculo MACD se necesita 34 datos antes de que este haga un calculo
-    df['macd']=ta.trend.macd_diff(df.Close)#,fillna=True) 
-    #Para borrar los valores q no contengan Nada
-    df.dropna(inplace=True) 
-    
-    
-    return df
-def Monedas(symbol, contador):
-    #********Operaciones de 30 min************
-    df=getminutedata(symbol,'30m','2880')
-
-    #********Operaciones de 1m***********
-    #df=getminutedata(symbol,'1m','60')
-    
-    señal=aplicartecnicals(df)
-    
-    #Llama a funcion tratamiento_datos para tomar el ultimo calculo de cada indicador
-    K_line=tratamiento_datos(señal['%K'])
-    D_line=tratamiento_datos(señal['%D'])
-    rsi_indice=tratamiento_datos(señal['rsi'])
-    mac=tratamiento_datos(señal['macd'])        
-    precio=tratamiento_datos(señal['Close'])    
-    
-    #Condiciones de compra y venta
-    if indicador_venta[contador]==0:
-        #Condicion de compra
-        if (rsi_indice>50.0) and (80>K_line>20)and(80>D_line>20): 
-            if mac>0.0:
-                print('LONG en  '+symbol)
-                posicion_activo[contador]=0
-                indicador_venta[contador]=1
-                print('Precio: ',precio)
-        #Condicion de short                
-        if (rsi_indice<50) and (80>K_line>20)and(80>D_line>20):
-            if mac<0.0:
-                print('SHORT en '+symbol)
-                print('Precio: ',precio)
-                posicion_activo[contador]=1
-                indicador_venta[contador]=1
-    #Cuando compre un activo y analiza cuando salir 
-    
-    else:
-        if posicion_activo[contador]==0:
-            if (rsi_indice<50) and (80>K_line>20)and(80>D_line>20):
-                if mac<0.0:
-                    print('Salir de Long en '+symbol)
-                    print('Salida: ',precio)
-                    indicador_venta[contador]=0
-        else:
-            if (rsi_indice>50.0) and (80>K_line>20)and(80>D_line>20):
-                if mac>0.0:
-                    print(' Salir de SHORT en '+symbol)
-                    print('Salida: ',precio)
-                    indicador_venta[contador]=0        
- 
-    
 while True:
-   
-   Monedas('BTCUSDT', 0)
-   Monedas('ETHUSDT', 1)
-   Monedas('MANAUSDT', 2)
-   Monedas('ROSEUSDT',3)
-   Monedas('ADAUSDT',4)
-   Monedas('BNBUSDT',5)
-   Monedas('DOGEUSDT',6)
-   Monedas('BAKEUSDT',7)
-   
-   
-   time.sleep(10) #Espera 10 Segundos
+    conn = sqlite3.connect('Prueba.sqlite')
+    frame=conn.execute("SELECT * FROM BTCUSDT")
+    frame = pd.DataFrame(frame)
+    frame.columns=['Time','Open','High','Low','Close','Volume']
+    tamaño=len(frame['Time'])-1
+        
+    ultima_hora_tomada=frame['Time'][tamaño]
+    ultima_hora_tomada=ultima_hora_tomada[:10] 
+
+    
+    if current_date==ultima_hora_tomada:
+                
+        estrategia.Monedas('BTCUSDT', 0)
+        estrategia.Monedas('ETHUSDT', 1)
+        estrategia.Monedas('MANAUSDT', 2)
+        estrategia.Monedas('ROSEUSDT',3)
+        estrategia.Monedas('ADAUSDT',4)
+        estrategia.Monedas('BNBUSDT',5)
+        estrategia.Monedas('DOGEUSDT',6)
+        estrategia.Monedas('BAKEUSDT',7)
+        time.sleep(60) #Espera 60 Segundos
+    else:
+        print('Pide mas datos')
+
+        Pidedatos.Monedas('BTCUSDT', 0)
+        Pidedatos.Monedas('ETHUSDT', 1)
+        Pidedatos.Monedas('MANAUSDT', 2)
+        Pidedatos.Monedas('ROSEUSDT',3)
+        Pidedatos.Monedas('ADAUSDT',4)
+        Pidedatos.Monedas('BNBUSDT',5)
+        Pidedatos.Monedas('DOGEUSDT',6)
+        Pidedatos.Monedas('BAKEUSDT',7)
+        
+
