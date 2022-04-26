@@ -14,10 +14,11 @@ conn = sqlite3.connect('Prueba.sqlite')
 
 client= Client(configuracion.usuario,configuracion.contra) #Entra a binance
 
-
+#Pide datos de velas de 4 Horas desde un perido especifico
 def getalldata(symbol,comando):
     
-    datos=client.get_historical_klines(symbol, Client.KLINE_INTERVAL_1HOUR, "1 Jan, 2021") #pide datos desde 1 jan 2021
+    datos=client.get_historical_klines(symbol, Client.KLINE_INTERVAL_4HOUR, "1 Jan, 2021") #pide datos desde 1 jan 2021
+    
     frame = pd.DataFrame(datos)
     frame= frame.iloc[:,:6]
     frame.columns=['Time','Open','High','Low','Close','Volume']
@@ -27,6 +28,8 @@ def getalldata(symbol,comando):
     
     return frame
 
+
+
 def Monedas(symbol, contador):
     #Pide datos para 4H de BTCUSDT
     datosdefecha=getalldata(symbol,0)
@@ -35,8 +38,16 @@ def Monedas(symbol, contador):
     datosdefecha.to_sql(symbol, conn, if_exists="replace")
 
     conn.commit()
-    
-    
+
+def pidedatosmonedas():
+    Monedas('BTCUSDT', 0)
+    Monedas('ETHUSDT', 1)
+    Monedas('MANAUSDT', 2)
+    Monedas('ROSEUSDT',3)
+    Monedas('ADAUSDT',4)
+    Monedas('BNBUSDT',5)
+    Monedas('DOGEUSDT',6)
+    Monedas('BAKEUSDT',7)
 
 def Time_server():
     time_res = client.get_server_time()
@@ -49,3 +60,4 @@ def Time_server():
     
     tiempo_cadena=tiempo_cadena[:10]
     return tiempo_cadena
+
