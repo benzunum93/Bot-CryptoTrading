@@ -1,5 +1,6 @@
 ##Robot final creado por Carlos Sebastian Zapata
 
+
 import pandas as pd
 import time#Para poner retardos en tiempo de 1 segundo
 import ta #Para analisis de indicadores de trading
@@ -11,7 +12,8 @@ import configuracion
 import sqlite3 #Para utilizar base de datos
 
 
-conn = sqlite3.connect('Prueba.sqlite')
+conn = sqlite3.connect('datos5min.sqlite')
+#conn = sqlite3.connect('Prueba.sqlite') #Datos de graficas de 4H
 
 
 rsi_indice=[0]
@@ -97,7 +99,7 @@ def Monedas(symbol, contador):
     #print(symbol,',',K_line,',',D_line,',',rsi_indice,',',mac,',',precio)
     
     #Condiciones de compra y venta
-    print(indicador_venta[contador],symbol)
+    #print(indicador_venta[contador],symbol)
     if indicador_venta[contador]==0:
         #Condicion de compra
         if (rsi_indice>50.0) and (80>K_line>20)and(80>D_line>20): 
@@ -129,7 +131,15 @@ def Monedas(symbol, contador):
                     print('Salida: ',precio)
                     indicador_venta[contador]=0        
  
-    
+def analisis():
+    Monedas('BTCUSDT', 0)
+    Monedas('ETHUSDT', 1)
+    Monedas('MANAUSDT', 2)
+    Monedas('ROSEUSDT',3)
+    Monedas('ADAUSDT',4)
+    Monedas('BNBUSDT',5)
+    Monedas('DOGEUSDT',6)
+    Monedas('BAKEUSDT',7)    
 
  
    
