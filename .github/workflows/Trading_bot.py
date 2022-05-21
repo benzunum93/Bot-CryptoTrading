@@ -1,4 +1,4 @@
-##Crypto trading boot based in python, made for Carlos Sebastian Zapata
+#Crypto trading boot based in python, made for Carlos Sebastian Zapata
 ##Sent API request to binance to get some data that is used to
 ##analice Cryptocurrencies and send information if it's good to invest in short o long position
 ##For default the Cryto are 9,and can be more o less that nine, that depends on you, its as simple as calling the Funcion "Monesdas()"
@@ -14,12 +14,14 @@ import time
 import sqlite3 #Para utilizar base de datos
 from datetime import datetime
 
-current_date = datetime.now().date()
-current_date=str(current_date)
-Pidedatos.Time_server()
 
+current_date=str(Pidedatos.Time_server())
+
+def iniciando_bot():
 #recoleta los datos desde 1 de enero del 2021 hasta hoy de las siguientes monedas
-try:
+    
+    
+
     conn = sqlite3.connect('Prueba.sqlite')
     frame=conn.execute("SELECT Time FROM BTCUSDT")
     frame=pd.DataFrame(frame)
@@ -30,35 +32,35 @@ try:
 
         Pidedatos.pidedatosmonedas()
     else:
-        print('Ya hay datos')    
-    while True:
-        
-        
-        frame=conn.execute("SELECT * FROM BTCUSDT")
-        frame = pd.DataFrame(frame)
-        frame.columns=['Time','Open','High','Low','Close','Volume']
-        tamaño=len(frame['Time'])-1 #Calcula el numero de la ultima fila en la tabla
+        print('Hay datos')    
             
-        ultima_hora_tomada=frame['Time'][tamaño]#Pide el ultimo valor de la columna 'Time'
-        ultima_hora_tomada=ultima_hora_tomada[:10] #Acota el valor del tiempo para que tome solo la fecha sin la hora
+        while True:       
+                
+            frame=conn.execute("SELECT * FROM BTCUSDT")
+            frame = pd.DataFrame(frame)
+            frame.columns=['Time','Open','High','Low','Close','Volume']
+            tamaño=len(frame['Time'])-1 #Calcula el numero de la ultima fila en la tabla
+                            
+            ultima_hora_tomada=frame['Time'][tamaño]#Pide el ultimo valor de la columna 'Time'
+            ultima_hora_tomada=ultima_hora_tomada[:10] #Acota el valor del tiempo para que tome solo la fecha sin la hora
 
-        #Mira si el ultimo dato esta actualizado
-        if current_date==ultima_hora_tomada:
+            #Mira si el ultimo dato esta actualizado
+            if current_date==ultima_hora_tomada:
 
-            estrategia.analisis()        
-            
-            time.sleep(60) #Espera 60 Segundos
-            Datos5min.tomardatosmonedas()#Pide datos de 5 min
-        else:
-            print('Actualiza los datos')
-            
-            Pidedatos.pidedatosmonedas()#Pide datos de 4H
-        
-
-
+                #Eligue si analizar temporalida de 5 min o de 4 H
+                estrategia.temporalidad_analisis('datos5min.sqlite')        
+                     
+                time.sleep(60) #Espera 60 Segundos
+                Datos5min.tomardatosmonedas()#Pide datos de 5 min
+            else:
+                print('Actualiza los datos')
+                        
+                Pidedatos.pidedatosmonedas()#Pide datos de 4H
+try:
+    iniciando_bot()
 except:
     print('No hay base de datos creada')
-    Pidedatos.pidedatosmonedas()
-
-
-
+    Pidedatos.pidedatosmonedas() 
+    Datos5min.tomardatosmonedas()
+    iniciando_bot()   
+    
