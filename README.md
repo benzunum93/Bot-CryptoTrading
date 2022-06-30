@@ -1,4 +1,4 @@
-- 👋 Hi, I’m Carlos Sebastian Zapata, a itried to upload some code that i made for some projects as a Bot for trading, and CRUD for employees in a company
+- 👋 Hi, I’m Carlos Sebastian Zapata, a i tried to upload some code that i made for some projects as a Bot for trading, and CRUD for employees in a company
 - 👀 I’m interested in software development based in Python, with Django, and SQL languague
 - 🌱 I’m currently learning Javascript, XML, HTML
 - 💞️ I’m looking to collaborate on any project based in python that i can collaborate
